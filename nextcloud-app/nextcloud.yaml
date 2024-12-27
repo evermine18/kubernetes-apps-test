@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud-front
+  labels:
+    app: nextcloud-prod
+    type: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nextcloud-prod
+      type: frontend
+  template:
+    metadata:
+      name: nextcloud-pod
+      labels:
+        app: nextcloud-prod
+        type: frontend
+    spec:
+      containers:
+        - name: nextcloud-container
+          image: nextcloud
+          ports:
+            - containerPort: 8080
+          env:
+            - name: OVERWRITEWEBROOT
+              value: /nextcloud
+          volumeMounts:
+            - name: nextcloud-data
+              mountPath: /var/www/html/config
+              subPath: config
+            - name: nextcloud-data
+              mountPath: /var/www/html/data
+              subPath: data
+            - name: nextcloud-data
+              mountPath: /var/www/html/apps
+              subPath: apps
+      volumes:
+        - name: nextcloud-data
+          persistentVolumeClaim:
+            claimName: nextcloud-pvc 

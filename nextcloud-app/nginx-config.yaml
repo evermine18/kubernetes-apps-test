@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    events { }
+
+    http {
+        server {
+            listen 80;
+
+            server_name _;
+
+            location /nextcloud {
+                proxy_pass http://nextcloud-service:80;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+
+                rewrite ^/nextcloud(/.*)$ $1 break; # Quita el prefijo "/nextcloud"
+                # Permitir todos los métodos HTTP
+    proxy_http_version 1.1;
+    client_max_body_size 512M;
+
+    # Aumentar tiempos de espera
+    proxy_connect_timeout 60s;
+    proxy_read_timeout 60s;
+    proxy_send_timeout 60s;
+          }
+        }
+    }
